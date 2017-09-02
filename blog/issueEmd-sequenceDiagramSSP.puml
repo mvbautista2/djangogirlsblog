@@ -1,0 +1,74 @@
+@startuml
+
+title Issue EMD with SSP
+
+participant Application
+participant ApiEmd
+participant SSP
+
+activate Application
+Application -> ApiEmd: Issue EMD-A
+
+  activate ApiEmd
+
+  ApiEmd -> SSP: get session by ApplicationName
+  activate SSP
+  SSP -> ApiEmd: security token
+  deactivate SSP
+
+  ApiEmd -> Sabre: IgnoreTransaction_2.0.0::ignoreTransactionRQ
+  activate Sabre
+  Sabre -> ApiEmd: Ok
+  deactivate Sabre
+
+  ApiEmd -> Sabre: ContextChange_2.0.3::contextChangeRQ (duty code)
+  activate Sabre
+  Sabre -> ApiEmd: Ok
+  deactivate Sabre
+
+  ApiEmd -> Sabre: DesignatePrinter_2.0.1::designatePrinterRQ (undesignate printer)
+  activate Sabre
+  Sabre -> ApiEmd: Ok
+  deactivate Sabre
+
+  ApiEmd -> Sabre: ContextChange_2.0.3::contextChangeRQ (OAC)
+  activate Sabre
+  Sabre -> ApiEmd: Ok
+  deactivate Sabre
+
+  ApiEmd -> Sabre: IgnoreTransaction_2.0.0::ignoreTransactionRQ
+  activate Sabre
+  Sabre -> ApiEmd: Ok
+  deactivate Sabre
+
+  ApiEmd -> Sabre: DesginatePrinter_2.0.1::designatePrinterRQ (designate printer)
+  activate Sabre
+  Sabre -> ApiEmd: Ok
+  deactivate Sabre
+
+  ApiEmd -> ApiBooking: ApiBooking v2 (asincronica)
+  activate ApiBooking
+  ApiBooking -> ApiEmd: PNR
+  deactivate ApiBooking
+
+  ApiEmd -> Sabre: GetReservation_1.15::getReservationOperation (Stateless) (asincronica)
+  activate Sabre
+  Sabre -> ApiEmd: PNR
+  deactivate Sabre
+
+  ApiEmd -> Sabre: MISCServices_1.3.6::collectMiscFeeRQ
+  activate Sabre
+  Sabre -> ApiEmd: EMD-A
+  deactivate Sabre
+
+  ApiEmd -> Application: Ancillay reference number
+  deactivate ApiEmd
+
+  ApiEmd -> SSP: release session
+  activate SSP
+  SSP -> ApiEmd: OK
+  deactivate SSP
+
+deactivate Application
+
+@enduml
